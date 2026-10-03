@@ -1,0 +1,33 @@
+{
+  "name": "akshith-ai-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Voice-interactive AI portfolio of Satya Akshith Pakalapati",
+  "type": "module",
+  "engines": {
+    "node": ">=22.9"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c cyan,magenta \"tsx watch --env-file-if-exists=.env server/index.ts\" \"vite\"",
+    "build": "vite build && tsc -p tsconfig.server.json",
+    "start": "node --env-file-if-exists=.env dist/server/index.js",
+    "typecheck": "tsc -p tsconfig.server.json --noEmit && tsc -p tsconfig.json --noEmit",
+    "clone-voice": "node --env-file-if-exists=.env scripts/clone-voice.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "compression": "^1.8.2",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.4",
+    "@types/three": "^0.186.0",
+    "concurrently": "^10.0.5",
+    "three": "^0.186.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2"
+  }
+}

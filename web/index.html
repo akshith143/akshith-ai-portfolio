@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Satya Akshith Pakalapati — AI Portfolio</title>
+    <meta
+      name="description"
+      content="Talk to the AI twin of Satya Akshith Pakalapati — full stack engineer (Node.js, Angular, TypeScript, MySQL) building fintech systems at 10M+ transactions a month."
+    />
+    <meta property="og:title" content="Talk to Akshith's AI twin" />
+    <meta property="og:description" content="Voice-interactive portfolio of a fintech full stack engineer. Ask anything about his experience." />
+    <meta name="theme-color" content="#070a12" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314b8a6'/%3E%3Ctext x='32' y='42' font-family='system-ui,sans-serif' font-size='26' font-weight='700' text-anchor='middle' fill='%230b0f17'%3EAP%3C/text%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://avatars.githubusercontent.com" crossorigin />
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true">
+      <div class="aurora a1"></div>
+      <div class="aurora a2"></div>
+      <div class="aurora a3"></div>
+      <div class="grid"></div>
+    </div>
+
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Home">
+        <span class="monogram">AP</span>
+        <span class="brand-text">
+          <strong>Satya Akshith Pakalapati</strong>
+          <small>Full Stack Engineer · Fintech</small>
+        </span>
+      </a>
+      <nav class="links" aria-label="Sections">
+        <a href="#experience">Experience</a>
+        <a href="#projects">Projects</a>
+        <a href="#education">Education</a>
+        <a href="#achievements">Achievements</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+        <a class="pill" href="/resume.pdf" target="_blank" rel="noopener">Resume ↓</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <!-- ============ HERO: the AI twin ============ -->
+      <section class="hero">
+        <div class="stage-wrap rise" style="--d: 0">
+          <span class="float-badge b1">⚡ &lt;200 ms APIs</span>
+          <span class="float-badge b2">Node.js</span>
+          <span class="float-badge b3">Angular</span>
+          <span class="float-badge b4">MySQL · Redis</span>
+          <span class="float-badge b5">🔒 PCI-DSS</span>
+          <span class="float-badge b6">AWS</span>
+        <div class="stage">
+          <div class="stage-glow" aria-hidden="true"></div>
+          <span class="live-badge"><span class="live-dot"></span>AI twin · live</span>
+          <div id="avatar" class="avatar" data-state="idle">
+            <canvas id="ring" class="ring" aria-hidden="true"></canvas>
+            <img id="photo" class="photo" alt="Satya Akshith Pakalapati" width="240" height="240" decoding="async" fetchpriority="high" />
+          </div>
+          <div id="status" class="status" role="status" aria-live="polite">
+            <span class="dot"></span><span id="status-text">Starting…</span>
+          </div>
+        </div>
+        </div>
+
+        <div class="intro">
+          <span class="eyebrow rise" style="--d: 1"><span class="open-dot"></span>Open to software engineering roles</span>
+          <h1 class="rise" style="--d: 2">
+            Hi, I'm <span class="grad shine">Akshith</span> —<br />
+            a software engineer who ships
+            <span class="rotator" aria-hidden="true"><span id="rotator-text" class="grad">scalable APIs</span><span class="caret"></span>.</span><span class="sr-only">scalable APIs, fintech platforms, full stack products and AI-powered features.</span>
+          </h1>
+          <p class="sub rise" style="--d: 3">
+            Full stack engineer with 7 years across fintech and logistics — Node.js, Angular, TypeScript, MySQL, Kotlin.
+            Today I own credit-card &amp; loan repayments at <strong>OneCard</strong>. Don't read about it — <em>ask me</em>.
+          </p>
+
+          <div class="stats rise" style="--d: 4">
+            <div class="stat"><b><i class="count" data-to="7">7</i><span>yrs</span></b><small>building production systems</small></div>
+            <div class="stat"><b><i class="count" data-to="1">1</i>M<span>+</span></b><small>users on my services</small></div>
+            <div class="stat"><b><i class="count" data-to="10">10</i>M<span>+</span></b><small>transactions / month</small></div>
+            <div class="stat"><b>&lt;<i class="count" data-to="200" data-from="999">200</i><span>ms</span></b><small>API response at peak</small></div>
+          </div>
+
+          <div class="convo rise" style="--d: 5">
+            <div class="convo-head">
+              <span>Conversation</span>
+              <button id="drawer-open" class="link-btn" type="button" aria-controls="drawer" aria-expanded="false">Transcript</button>
+            </div>
+            <div class="captions" aria-live="polite">
+              <p id="caption-user" class="caption-user"></p>
+              <p id="caption-ai" class="caption-ai">Ask me about my experience, a project, or how I'd approach a problem — out loud or by typing.</p>
+            </div>
+
+            <button id="start" class="start" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.93V21h2v-2.07A7 7 0 0 0 19 12h-2Z"/></svg>
+              Talk to my AI twin
+            </button>
+
+            <div id="console" class="console" hidden>
+              <form id="ask-form" class="ask" autocomplete="off">
+                <input id="ask-input" type="text" maxlength="500" placeholder="Type a question, or tap the mic…" aria-label="Ask a question" />
+                <button id="send" class="send" type="submit" aria-label="Send">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.5 21 12 3 3.5v6.6l12 1.9-12 1.9v6.6Z"/></svg>
+                </button>
+              </form>
+              <button id="mic" class="mic" type="button" aria-pressed="false" aria-label="Start talking">
+                <svg class="i-mic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.93V21h2v-2.07A7 7 0 0 0 19 12h-2Z"/></svg>
+                <svg class="i-stop" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+              </button>
+            </div>
+
+            <div id="chips" class="chips" aria-label="Suggested questions">
+              <button type="button">Give me your 30-second intro</button>
+              <button type="button">How do you keep APIs under 200 ms?</button>
+              <button type="button">Why should we hire you?</button>
+              <button type="button">How do you handle PCI-DSS compliance?</button>
+            </div>
+          </div>
+        </div>
+        <a class="scroll-cue" href="#experience" aria-label="Scroll to experience"><span></span></a>
+      </section>
+
+      <!-- ============ EXPERIENCE ============ -->
+      <section id="experience" class="section">
+        <div class="section-head reveal">
+          <span class="kicker">01 — Experience</span>
+          <h2>Seven years, four companies, one theme: <span class="grad">fast, correct systems.</span></h2>
+        </div>
+        <ol id="timeline" class="timeline"></ol>
+      </section>
+
+      <!-- ============ PROJECTS ============ -->
+      <section id="projects" class="section">
+        <div class="section-head reveal">
+          <span class="kicker">02 — Projects</span>
+          <h2>Things I've built <span class="grad">beyond the day job.</span></h2>
+        </div>
+        <div id="project-grid" class="project-grid"></div>
+      </section>
+
+      <!-- ============ EDUCATION ============ -->
+      <section id="education" class="section">
+        <div class="section-head reveal">
+          <span class="kicker">03 — Education</span>
+          <h2>Computer science by degree, <span class="grad">AI by choice.</span></h2>
+        </div>
+        <div id="education-grid" class="education-grid"></div>
+      </section>
+
+      <!-- ============ ACHIEVEMENTS & CERTIFICATIONS ============ -->
+      <section id="achievements" class="section">
+        <div class="section-head reveal">
+          <span class="kicker">04 — Achievements &amp; certifications</span>
+          <h2>From a Stanford d.school fellowship <span class="grad">to SQL mastery.</span></h2>
+        </div>
+        <div id="achievement-grid" class="achievement-grid"></div>
+      </section>
+
+      <!-- ============ SKILLS ============ -->
+      <section id="skills" class="section">
+        <div class="section-head reveal">
+          <span class="kicker">05 — Skills</span>
+          <h2>The toolkit.</h2>
+        </div>
+        <div id="skills-grid" class="skills-grid"></div>
+      </section>
+
+      <!-- ============ BEYOND THE CODE ============ -->
+      <section id="beyond" class="section">
+        <div class="section-head reveal">
+          <span class="kicker">06 — Beyond the code</span>
+          <h2>When I'm not shipping, <span class="grad">I'm on the court or mid-episode.</span></h2>
+        </div>
+        <div class="beyond-grid">
+          <div class="beyond-card reveal">
+            <h3>Languages I speak</h3>
+            <div id="language-list" class="lang-list"></div>
+          </div>
+          <div class="beyond-card reveal">
+            <h3>Hobbies</h3>
+            <ul id="hobby-list" class="hobby-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CONTACT ============ -->
+      <section id="contact" class="section">
+        <div class="contact-card reveal">
+          <div>
+            <span class="kicker">07 — Contact</span>
+            <h2>Liked what my twin said?<br /><span class="grad">Talk to the real me.</span></h2>
+            <p>I'm open to software engineering roles — backend or full stack — on teams building systems that matter.</p>
+            <ul class="contact-lines">
+              <li>
+                <span class="ci" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm0 2v.4l8 5.1 8-5.1V7H4Zm16 2.8-7.5 4.8a1 1 0 0 1-1 0L4 9.8V17h16V9.8Z"/></svg></span>
+                <a href="mailto:akshith.pakalapati@gmail.com">akshith.pakalapati@gmail.com</a>
+                <button class="copy" type="button" data-copy="akshith.pakalapati@gmail.com" aria-label="Copy email">Copy</button>
+              </li>
+              <li>
+                <span class="ci" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8Z"/></svg></span>
+                <a href="tel:+919848174081">+91 98481 74081</a>
+                <button class="copy" type="button" data-copy="+91 9848174081" aria-label="Copy phone number">Copy</button>
+              </li>
+            </ul>
+          </div>
+          <div class="contact-actions">
+            <a id="link-email" class="btn primary" href="mailto:akshith.pakalapati@gmail.com">Email me</a>
+            <a id="link-linkedin" class="btn" href="https://linkedin.com/in/akshith-pakalapati-993646108" target="_blank" rel="noopener">LinkedIn</a>
+            <a id="link-github" class="btn" href="https://github.com/akshith143" target="_blank" rel="noopener">GitHub</a>
+            <a class="btn" href="tel:+919848174081">Call me</a>
+            <a class="btn" href="/resume.pdf" target="_blank" rel="noopener">Resume (PDF)</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span>© Satya Akshith Pakalapati</span>
+      <a href="mailto:akshith.pakalapati@gmail.com">akshith.pakalapati@gmail.com</a>
+      <a href="tel:+919848174081">+91 98481 74081</a>
+      <span>AI twin — answers are generated from my resume and projects, spoken in an AI clone of my voice.</span>
+      <span id="voice-note"></span>
+    </footer>
+
+    <aside id="drawer" class="drawer" aria-hidden="true" aria-label="Conversation transcript">
+      <div class="drawer-head">
+        <strong>Transcript</strong>
+        <button id="drawer-close" class="link-btn" type="button" aria-label="Close">✕</button>
+      </div>
+      <div class="tab-body">
+        <ol id="transcript" class="transcript"><li class="empty">Nothing yet — ask me something.</li></ol>
+      </div>
+    </aside>
+    <div id="scrim" class="scrim" hidden></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+# Render Blueprint — New → Blueprint → pick this repo, then paste the three secret keys when prompted.
+services:
+  - type: web
+    name: akshith-ai-portfolio
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORTFOLIO_MODEL
+        value: claude-opus-5-5
+      - key: PORTFOLIO_EFFORT
+        value: low
+      - key: ANTHROPIC_API_KEY
+        sync: false # secret — entered in the Render dashboard, never committed
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        sync: false
