@@ -24,7 +24,12 @@ function collectMorphs(scene: THREE.Object3D) {
   return map;
 }
 
-export async function createModelAvatar(root: HTMLElement, url: string, audio: AudioTap): Promise<Avatar> {
+export async function createModelAvatar(
+  root: HTMLElement,
+  url: string,
+  audio: AudioTap,
+  onProgress?: (fraction: number) => void,
+): Promise<Avatar> {
   const canvas = document.createElement("canvas");
   canvas.className = "three";
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
@@ -47,7 +52,9 @@ export async function createModelAvatar(root: HTMLElement, url: string, audio: A
   scene.add(rim);
 
   // Meshopt-compressed models (see `gltf-transform optimize --compress meshopt`) load ~6x smaller.
-  const gltf = await new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(url);
+  const gltf = await new GLTFLoader()
+    .setMeshoptDecoder(MeshoptDecoder)
+    .loadAsync(url, (e) => e.total && onProgress?.(e.loaded / e.total));
   const model = gltf.scene;
   scene.add(model);
   const morphs = collectMorphs(model);
@@ -103,6 +110,10 @@ export async function createModelAvatar(root: HTMLElement, url: string, audio: A
   let nextBlink = posterMode ? Infinity : performance.now() + 2000;
   let blinkStart = -1;
   const smoothLook = { x: 0, y: 0 };
+  // The poster still looks straight ahead, so the live head does too until it
+  // has faded in over it; only then does it start following the pointer.
+  const FADE_MS = 600;
+  let readyAt = -1;
   let last = performance.now();
   let raf = 0;
 
@@ -150,8 +161,9 @@ export async function createModelAvatar(root: HTMLElement, url: string, audio: A
     }
 
     // Posture, head and hands.
-    smoothLook.x += (pointer.x - smoothLook.x) * Math.min(1, dt * 4);
-    smoothLook.y += (pointer.y - smoothLook.y) * Math.min(1, dt * 4);
+    const follow = readyAt < 0 ? 0 : Math.min(1, Math.max(0, (now - readyAt - FADE_MS) / 1000)); // ease in over 1 s
+    smoothLook.x += (pointer.x * follow - smoothLook.x) * Math.min(1, dt * 4);
+    smoothLook.y += (pointer.y * follow - smoothLook.y) * Math.min(1, dt * 4);
     body.update(t, dt, state, mouth, smoothLook);
 
     renderer.render(scene, camera);
@@ -159,6 +171,8 @@ export async function createModelAvatar(root: HTMLElement, url: string, audio: A
       // First real frame is on screen: fade the live model in over the poster.
       canvas.classList.add("ready");
       root.classList.add("is-ready");
+      readyAt = now;
+      root.dispatchEvent(new Event("avatar-ready"));
     }
   };
   raf = requestAnimationFrame(frame);

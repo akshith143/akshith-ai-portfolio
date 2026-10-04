@@ -19,6 +19,8 @@ export interface ListenerEvents {
   onFinal(text: string): void;
   onEnd(heardSomething: boolean): void;
   onError(error: string): void;
+  /** Live input loudness (0..~0.3 RMS) while recording — only the recorder path reports it. */
+  onLevel?(rms: number): void;
 }
 
 export class NativeListener {

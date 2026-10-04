@@ -336,6 +336,28 @@ function revealConsoleOnMobile() {
 }
 
 // ---------------------------------------------------------------------------
+// Loading screen
+
+const SPLASH_MAX_MS = 7000; // never hold visitors longer than this; the poster covers the rest
+let splashGone = false;
+
+function splashStep(text: string, fraction?: number) {
+  if (splashGone) return;
+  $("splash-step").textContent = text;
+  if (fraction !== undefined) $("splash-bar").style.width = `${Math.round(8 + fraction * 92)}%`;
+}
+
+/** Fade the loading screen out and start the landing animations behind it. */
+function hideSplash() {
+  if (splashGone) return;
+  splashGone = true;
+  $("splash-bar").style.width = "100%";
+  $("splash").classList.add("done");
+  document.documentElement.classList.remove("loading");
+  setTimeout(() => $("splash").remove(), 600);
+}
+
+// ---------------------------------------------------------------------------
 // Landing-page motion
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -430,11 +452,18 @@ async function mountAvatar() {
   try {
     // three.js is only downloaded when there's a 3D model to show.
     const { createModelAvatar } = await import("./avatar/model3d");
-    const model = await createModelAvatar(el.avatar, config.avatar.url, speaker);
+    el.avatar.addEventListener("avatar-ready", () => {
+      splashStep("Ready", 1);
+      setTimeout(hideSplash, 150);
+    }, { once: true });
+    const model = await createModelAvatar(el.avatar, config.avatar.url, speaker, (f) =>
+      splashStep(`Loading my 3D twin… ${Math.round(f * 100)}%`, 0.15 + f * 0.8),
+    );
     avatar.dispose();
     avatar = model;
   } catch (err) {
     console.warn("3D avatar failed to load:", err);
+    hideSplash();
     if (!document.getElementById("poster")) usePhotoAvatar(); // the poster stays if we have one
   }
 }
@@ -458,7 +487,10 @@ async function boot() {
     onStart: () => setState("speaking"),
     onIdle: onSpeakerIdle,
   });
+  splashStep("Loading my profile…", 0.12);
+  setTimeout(hideSplash, SPLASH_MAX_MS - performance.now());
   void mountAvatar();
+  if (config.avatar.type !== "glb") hideSplash(); // nothing heavy to wait for
   renderSections();
   revealOnScroll();
   runRotator();
@@ -472,6 +504,8 @@ async function boot() {
   listener = await Listener.create(
     {
       onInterim: (t) => (el.captionUser.textContent = t),
+      // Status dot pulses with the mic level, so visitors can see they're being heard.
+      onLevel: (rms) => el.status.style.setProperty("--mic", String(Math.min(1, rms * 10))),
       onFinal: (t) => void ask(t),
       onEnd: (heard) => {
         if (!heard) {

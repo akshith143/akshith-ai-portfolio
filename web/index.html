@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="loading">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -15,8 +15,52 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      /* Loading screen — inlined so it paints on the very first frame. */
+      .splash {
+        position: fixed; inset: 0; z-index: 100; display: grid; place-items: center;
+        background: radial-gradient(60% 50% at 50% 45%, rgba(45, 212, 191, 0.12), transparent 70%), #070a12;
+        color: #eef1f7; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        transition: opacity 0.5s ease, visibility 0.5s;
+        /* Safety net: even if scripts never run, never trap the visitor here. */
+        animation: splash-giveup 0.4s ease 10s forwards;
+      }
+      .splash.done { opacity: 0; visibility: hidden; pointer-events: none; }
+      @keyframes splash-giveup { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+      .splash-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px; text-align: center; }
+      .splash-mark { position: relative; width: 92px; height: 92px; display: grid; place-items: center; }
+      .splash-mark::before {
+        content: ""; position: absolute; inset: 0; border-radius: 50%;
+        background: conic-gradient(from 0deg, #2dd4bf, #38bdf8, #a78bfa, transparent 70%);
+        -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+        mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+        animation: splash-spin 1.1s linear infinite;
+      }
+      .splash-mark span {
+        display: grid; place-items: center; width: 64px; height: 64px; border-radius: 18px; font-weight: 800; font-size: 24px;
+        color: #04121a; background: linear-gradient(135deg, #2dd4bf, #38bdf8 50%, #a78bfa);
+        box-shadow: 0 0 40px rgba(45, 212, 191, 0.35); animation: splash-breathe 1.8s ease-in-out infinite;
+      }
+      .splash-name { font-size: 17px; font-weight: 600; letter-spacing: 0.01em; }
+      .splash-step { margin-top: -10px; font-size: 13.5px; color: #9aa5ba; min-height: 1.4em; }
+      .splash-bar { width: 220px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+      .splash-bar i { display: block; height: 100%; width: 8%; border-radius: inherit; background: linear-gradient(90deg, #2dd4bf, #38bdf8, #a78bfa); transition: width 0.3s ease; }
+      @keyframes splash-spin { to { transform: rotate(1turn); } }
+      @keyframes splash-breathe { 50% { transform: scale(0.94); } }
+      @media (prefers-reduced-motion: reduce) { .splash-mark::before, .splash-mark span { animation: none; } }
+    </style>
+    <!-- If the app bundle never runs, still release the paused entrance animations. -->
+    <script>setTimeout(function () { document.documentElement.classList.remove("loading"); }, 10000);</script>
   </head>
   <body>
+    <div id="splash" class="splash" role="status" aria-live="polite">
+      <div class="splash-inner">
+        <div class="splash-mark"><span>AP</span></div>
+        <div class="splash-name">Satya Akshith Pakalapati</div>
+        <div id="splash-step" class="splash-step">Waking up my AI twin…</div>
+        <div class="splash-bar"><i id="splash-bar"></i></div>
+      </div>
+    </div>
     <div class="bg" aria-hidden="true">
       <div class="aurora a1"></div>
       <div class="aurora a2"></div>

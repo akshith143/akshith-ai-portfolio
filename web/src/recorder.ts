@@ -4,6 +4,8 @@ import type { ListenerEvents } from "./listener";
 // of speech with a simple energy-based VAD, then transcribe on the server.
 
 const MIN_SPEECH_RMS = 0.01; // floor for the adaptive speech threshold
+const MAX_NOISE_RMS = 0.015; // cap on the measured room noise, so speaking during calibration can't deafen us
+const LIKELY_VOICE_RMS = 0.02; // if we never got sure but heard this much, let the server decide
 const CALIBRATE_MS = 350; // measure room noise this long before listening for speech
 const SILENT_MIC_RMS = 0.0015; // a live mic is never this quiet — the OS is feeding us zeros
 const END_SILENCE_MS = 900; // pause that ends the turn
@@ -64,8 +66,7 @@ export class RecorderListener {
     const began = performance.now();
     let spoke = false;
     let lastVoice = began;
-    let noise = 0; // running estimate of the room's background level
-    let calibrated = 0;
+    let noise = Infinity; // quietest level seen while calibrating ≈ the room's background
     let peak = 0;
 
     rec.onstop = async () => {
@@ -73,6 +74,9 @@ export class RecorderListener {
       src.disconnect();
       this.recorder = null;
       if (this.discard) return;
+      // Never confidently detected speech, but something voice-loud happened:
+      // send it anyway rather than telling the visitor we heard nothing.
+      if (!spoke && peak >= LIKELY_VOICE_RMS) spoke = true;
       if (!spoke) {
         this.active = false;
         // Pure digital silence means the OS (or another app) is withholding the mic.
@@ -104,13 +108,14 @@ export class RecorderListener {
       const rms = Math.sqrt(sum / buf.length);
       const now = performance.now();
       peak = Math.max(peak, rms);
+      this.events.onLevel?.(rms);
       if (now - began < CALIBRATE_MS) {
-        noise = (noise * calibrated + rms) / ++calibrated;
+        noise = Math.min(noise, rms);
         this.raf = requestAnimationFrame(tick);
         return;
       }
       // Speech = clearly above the room's noise floor, whatever the mic's gain.
-      if (rms > Math.max(MIN_SPEECH_RMS, noise * 3)) {
+      if (rms > Math.max(MIN_SPEECH_RMS, Math.min(noise, MAX_NOISE_RMS) * 3)) {
         if (!spoke) this.events.onInterim("Listening…");
         spoke = true;
         lastVoice = now;
