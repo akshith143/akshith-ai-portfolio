@@ -80,7 +80,7 @@ To trade a little quality for more speed, set `PORTFOLIO_MODEL=claude-sonnet-5-5
 
 ## Browser support
 
-Voice input uses the browser's built-in recognition in Chrome, Edge and Safari (fastest — words appear as you talk). Brave and Firefox don't have a working speech service, so there the site records the question and transcribes it server-side with ElevenLabs Speech-to-Text (`/api/stt`, same `ELEVENLABS_API_KEY`). It also switches to that path automatically if the native service errors out. Without an ElevenLabs key, those browsers can still type. Space bar toggles the mic on desktop.
+Voice input works in every modern browser. Google Chrome, Microsoft Edge and Safari use their built-in speech recognition (fastest — words appear as you talk). Every other browser — Brave, Opera, Comet, Vivaldi, Arc, Firefox, Samsung Internet — records the question and transcribes it server-side with ElevenLabs Speech-to-Text (`/api/stt`, same `ELEVENLABS_API_KEY`). Those Chromium browsers expose the speech API but can't reach Google's speech service, so they're routed by an allowlist (`prefersNativeSpeech` in [web/src/listener.ts](web/src/listener.ts)), with a runtime fallback if a built-in engine fails or ends instantly. Without an ElevenLabs key, they can still type. Space bar toggles the mic on desktop.
 
 ## Deploying
 

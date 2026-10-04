@@ -26,11 +26,9 @@ export class NativeListener {
   private active = false;
   private heard = false;
 
+  /** The API exists in this browser (it may still not work — see prefersNativeSpeech). */
   static supported() {
     const w = window as unknown as Record<string, unknown>;
-    // Brave exposes the API but ships without Google's speech service, so it
-    // always fails with a "network" error. Skip straight to the fallback.
-    if ("brave" in navigator) return false;
     return Boolean(w.SpeechRecognition || w.webkitSpeechRecognition);
   }
 
@@ -92,6 +90,27 @@ export class NativeListener {
   }
 }
 
+/**
+ * Whether this browser's built-in recognition actually works. Chromium's
+ * SpeechRecognition streams audio to Google's servers, which only Google Chrome
+ * and Microsoft Edge are allowed to use; every other Chromium browser (Brave,
+ * Opera, Comet, Vivaldi, Arc, Samsung Internet…) exposes the API but never
+ * hears anything. Safari uses Apple's on-device engine and works. Anything
+ * not on this allowlist records and transcribes on the server instead.
+ */
+export function prefersNativeSpeech(
+  brands: readonly { brand: string }[] | undefined,
+  userAgent: string,
+  isBrave: boolean,
+): boolean {
+  if (isBrave) return false;
+  if (brands && brands.length) return brands.some((b) => /^(Google Chrome|Microsoft Edge)$/.test(b.brand));
+  // No Client Hints: Safari (and every iOS browser, which are all WebKit) or Firefox.
+  const iOS = /iPhone|iPad|iPod/.test(userAgent);
+  const desktopSafari = /Safari\//.test(userAgent) && !/Chrome|Chromium|Edg|OPR|Firefox|SamsungBrowser/.test(userAgent);
+  return iOS || desktopSafari;
+}
+
 // Errors that mean the browser's recognition service itself is unusable here,
 // as opposed to the visitor denying the mic or just not speaking.
 const SERVICE_ERRORS = new Set(["network", "service-not-allowed", "language-not-supported"]);
@@ -105,14 +124,20 @@ const SERVICE_ERRORS = new Set(["network", "service-not-allowed", "language-not-
 export class Listener {
   private native: NativeListener | null = null;
   private recorder: import("./recorder").RecorderListener | null = null;
+  private startedAt = 0;
 
   static async create(events: ListenerEvents, serverStt: boolean): Promise<Listener | null> {
     const { RecorderListener } = await import("./recorder");
     const canRecord = serverStt && RecorderListener.supported();
-    if (!NativeListener.supported() && !canRecord) return null;
+    const nav = navigator as Navigator & { userAgentData?: { brands: { brand: string }[] } };
+    const trusted = prefersNativeSpeech(nav.userAgentData?.brands, navigator.userAgent, "brave" in navigator);
+    // Use the built-in engine only where it really works — or as a last resort
+    // when the server can't transcribe.
+    const useNative = NativeListener.supported() && (trusted || !canRecord);
+    if (!useNative && !canRecord) return null;
     const l = new Listener();
     if (canRecord) l.recorder = new RecorderListener(events);
-    if (NativeListener.supported()) {
+    if (useNative) {
       l.native = new NativeListener({
         ...events,
         onError: (e) => {
@@ -125,7 +150,16 @@ export class Listener {
           }
         },
         onEnd: (heard) => {
-          if (l.native) events.onEnd(heard); // suppressed once we've switched to the recorder
+          if (!l.native) return; // already switched to the recorder
+          // A working engine waits several seconds for speech. Ending almost
+          // immediately with nothing heard means it's a dud in this browser.
+          if (!heard && l.recorder && performance.now() - l.startedAt < 1500) {
+            console.warn("Browser speech recognition ended instantly; using server transcription.");
+            l.native = null;
+            void l.recorder.start();
+            return;
+          }
+          events.onEnd(heard);
         },
       });
     }
@@ -137,6 +171,7 @@ export class Listener {
   }
 
   start() {
+    this.startedAt = performance.now();
     if (this.native) this.native.start();
     else void this.recorder?.start();
   }
