@@ -410,9 +410,22 @@ function tiltStage() {
   });
 }
 
-async function mountAvatar() {
+function usePhotoAvatar() {
   el.photo.src = config.avatar.type === "photo" ? config.avatar.url : "https://avatars.githubusercontent.com/u/15259032?v=4&s=480";
   avatar = createPhotoAvatar(el.avatar, el.photo, el.ring, speaker);
+}
+
+async function mountAvatar() {
+  // With a 3D model, a still of that same model (poster.webp, already loading
+  // from the HTML) holds its place until the live model fades in on top.
+  const poster = document.getElementById("poster");
+  if (config.avatar.type === "glb" && poster) {
+    el.avatar.classList.add("has-poster");
+    avatar = { setState: (s) => void (el.avatar.dataset.state = s), dispose() {} };
+  } else {
+    poster?.remove();
+    usePhotoAvatar();
+  }
   if (config.avatar.type !== "glb") return;
   try {
     // three.js is only downloaded when there's a 3D model to show.
@@ -421,7 +434,8 @@ async function mountAvatar() {
     avatar.dispose();
     avatar = model;
   } catch (err) {
-    console.warn("3D avatar failed to load, staying on photo:", err);
+    console.warn("3D avatar failed to load:", err);
+    if (!document.getElementById("poster")) usePhotoAvatar(); // the poster stays if we have one
   }
 }
 

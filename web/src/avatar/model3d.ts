@@ -56,6 +56,10 @@ export async function createModelAvatar(root: HTMLElement, url: string, audio: A
   const params = import.meta.env.DEV ? new URLSearchParams(location.search) : new URLSearchParams();
   const debugMouth = Number(params.get("mouth")) || 0;
   const debugState = params.get("state") as AvatarState | null;
+  // ?poster renders the model alone, at rest, on a transparent page — used to
+  // produce web/public/avatar/poster.webp, the still shown while this loads.
+  const posterMode = params.has("poster");
+  if (posterMode) document.documentElement.classList.add("poster-mode");
 
   const body = new Body(model);
   body.update(0, 1, "idle", 0, { x: 0, y: 0 });
@@ -96,7 +100,7 @@ export async function createModelAvatar(root: HTMLElement, url: string, audio: A
 
   let state: AvatarState = debugState ?? "idle";
   let mouth = 0;
-  let nextBlink = performance.now() + 2000;
+  let nextBlink = posterMode ? Infinity : performance.now() + 2000;
   let blinkStart = -1;
   const smoothLook = { x: 0, y: 0 };
   let last = performance.now();
@@ -104,7 +108,7 @@ export async function createModelAvatar(root: HTMLElement, url: string, audio: A
 
   const frame = (now: number) => {
     raf = requestAnimationFrame(frame);
-    const t = now / 1000;
+    const t = posterMode ? 0 : now / 1000;
     // rAF timestamps can predate `last` on the first frame; never step backwards.
     const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
     last = now;
@@ -151,6 +155,11 @@ export async function createModelAvatar(root: HTMLElement, url: string, audio: A
     body.update(t, dt, state, mouth, smoothLook);
 
     renderer.render(scene, camera);
+    if (!canvas.classList.contains("ready")) {
+      // First real frame is on screen: fade the live model in over the poster.
+      canvas.classList.add("ready");
+      root.classList.add("is-ready");
+    }
   };
   raf = requestAnimationFrame(frame);
 
